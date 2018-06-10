@@ -1,3 +1,10 @@
+# Data
+data/mnist/*
+
+# Models
+models/lenet/*
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
