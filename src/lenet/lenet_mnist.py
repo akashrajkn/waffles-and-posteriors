@@ -2,7 +2,7 @@
 import sys
 
 from lenet import LeNet
-from sklearn.cross_validation import train_test_split
+from sklearn.model_selection import train_test_split
 from sklearn import datasets
 from keras.optimizers import SGD
 from keras.utils import np_utils
@@ -16,7 +16,7 @@ ap.add_argument("-s", "--save-model", type=int, default=-1,
                 help="(optional) whether or not model should be saved to disk")
 ap.add_argument("-l", "--load-model", type=int, default=-1,
                 help="(optional) whether or not pre-trained model should be loaded")
-ap.add_argument("-w", "--weights", type=str,
+ap.add_argument("-w", "--weights", type=str, default='../../models/lenet/lenet_weights.hdf5',
                 help="(optional) path to weights file")
 args = vars(ap.parse_args())
 
@@ -58,8 +58,7 @@ model.compile(loss="categorical_crossentropy", optimizer=opt,
 # pre-existing model
 if args["load_model"] < 0:
     print("[INFO] training...")
-    model.fit(trainData, trainLabels, batch_size=128, nb_epoch=20,
-              verbose=1)
+    model.fit(trainData, trainLabels, batch_size=128, epochs=20, verbose=1)
 
     # show the accuracy on the testing set
     print("[INFO] evaluating...")

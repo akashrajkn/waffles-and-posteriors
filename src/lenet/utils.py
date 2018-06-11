@@ -1,6 +1,16 @@
-
+import pickle
 import numpy as np
 from zipfile import ZipFile
+
+
+def save_mnist_to_file(X, y):
+    data = {
+        'X': X,
+        'y': y
+    }
+
+    with open('../../data/mnist/mnist_rotated.pkl', 'wb+') as f:
+        pickle.dump(data, f)
 
 
 def load_mnist_rot(path=None, which='train'):
@@ -28,7 +38,7 @@ def test_mnist_rot(plot=False):
     import matplotlib.pyplot as plt
     X, y = load_mnist_rot(which='test')
 
-    print(X.shape)
+    print(' - Data size: {}'.format(str(X.shape)))
 
     if plot:
         plt.figure()
