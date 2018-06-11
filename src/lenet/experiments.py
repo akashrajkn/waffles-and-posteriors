@@ -72,9 +72,10 @@ def experiment_one(plot=False):
             plt.annotate(str(predicted_nums[i][0]), (x_axis[i], predicted[i]))
 
         plt.xticks(x_axis, probs_x)
+        plt.ylabel('Softmax probability')
         plt.legend(for_legend, x_axis, bbox_to_anchor=(1.01, 1), loc=2, borderaxespad=0.)
         plt.show()
 
 
 if __name__ == '__main__':
-    experiment_one()
+    experiment_one(plot=True)
