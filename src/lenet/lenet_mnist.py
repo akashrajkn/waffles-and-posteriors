@@ -1,4 +1,6 @@
 # import the necessary packages
+import sys
+
 from lenet import LeNet
 from sklearn.cross_validation import train_test_split
 from sklearn import datasets
@@ -32,6 +34,11 @@ data = data[:, np.newaxis, :, :]
 (trainData, testData, trainLabels, testLabels) = train_test_split(
     data / 255.0, dataset.target.astype("int"), test_size=0.33)
 
+# print("------------")
+# print(testData.shape)
+# print(testLabels.shape)
+# print("------------")
+
 # transform the training and testing labels into vectors in the
 # range [0, classes] -- this generates a vector for each label,
 # where the index of the label is set to `1` and all other entries
@@ -43,9 +50,9 @@ testLabels = np_utils.to_categorical(testLabels, 10)
 print("[INFO] compiling model...")
 opt = SGD(lr=0.01)
 model = LeNet.build(width=28, height=28, depth=1, classes=10,
-	weightsPath=args["weights"] if args["load_model"] > 0 else None)
+                    weightsPath=args["weights"] if args["load_model"] > 0 else None)
 model.compile(loss="categorical_crossentropy", optimizer=opt,
-	metrics=["accuracy"])
+              metrics=["accuracy"])
 
 # only train and evaluate the model if we *are not* loading a
 # pre-existing model
