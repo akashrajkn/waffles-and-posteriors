@@ -28,10 +28,8 @@ def experiment_one(plot=False):
     y = np_utils.to_categorical(y, 10)
 
     opt = SGD(lr=0.01)
-    model = LeNet.build(width=28, height=28, depth=1, classes=10,
-                        weightsPath='../../models/lenet/lenet_weights.hdf5')
-    model.compile(loss="categorical_crossentropy", optimizer=opt,
-                  metrics=["accuracy"])
+    model = LeNet.build(width=28, height=28, depth=1, classes=10, weightsPath='../../models/lenet/lenet_weights.hdf5')
+    model.compile(loss="categorical_crossentropy", optimizer=opt, metrics=["accuracy"])
 
     probs_dict = {}
     probs_x = []

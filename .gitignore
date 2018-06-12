@@ -3,6 +3,10 @@ data/mnist/*
 
 # Models
 models/lenet/*
+src/mnf/models/*
+
+# Logs
+src/mnf/logs/*
 
 
 # Byte-compiled / optimized / DLL files
