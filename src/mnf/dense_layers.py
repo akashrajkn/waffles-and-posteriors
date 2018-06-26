@@ -32,7 +32,7 @@ class DenseMNF(Layer):
 
         with tf.variable_scope(self.name):
             self.mu_W = randmat((dim_in, dim_out), name='mean_W', extra_scale=1.)
-            self.logvar_W = randmat((dim_in, dim_out), mu=-9., name='var_W', extra_scale=1e-6)
+            self.logvar_W = randmat((dim_in, dim_out), mu=-9., name='var_W', extra_scale=1e-6)  # conditional gaussian
             self.mu_bias = tf.Variable(tf.zeros((dim_out,)), name='mean_bias')
             self.logvar_bias = randmat((dim_out,), mu=-9., name='var_bias', extra_scale=1e-6)
 
@@ -103,6 +103,7 @@ class DenseMNF(Layer):
         Mtilde = Mexp * self.mu_W
         Vtilde = tf.square(std_mg)
 
+
         iUp = outer(tf.exp(self.pvar), ones_d((self.output_dim,)))
 
         logqm = 0.
@@ -110,7 +111,42 @@ class DenseMNF(Layer):
             logqm = - tf.reduce_sum(.5 * (tf.log(2 * np.pi) + tf.log(qm0) + 1))
             logqm -= logdets
 
-        kldiv_w = tf.reduce_sum(.5 * tf.log(iUp) - tf.log(std_mg) + ((Vtilde + tf.square(Mtilde)) / (2 * iUp)) - .5)
+        # TODO: Move this to main function
+        prior = 'standard_normal'
+        # sample if analytical solution is not
+        tractable = True  # FIXME: this is not complete
+
+        print ">>>>>>>>>>>>>> {} -------------------".format(prior)
+
+        if prior == 'log_uniform':
+            theta_i = Mtilde
+            alpha_i = tf.div(Vtilde, Mtilde)
+
+            tf.clip_by_value(alpha_i, 0, 1.0)
+
+            c_1 = 1.161415124
+            c_2 = -1.50204118
+            c_3 = 0.58629921
+            constant = -0.24570927
+
+            alpha_i2 = tf.multiply(alpha_i, alpha_i)
+            alpha_i3 = tf.multiply(alpha_i2, alpha_i)
+
+            kldiv_w = tf.reduce_sum(constant + 0.5 * tf.log(alpha_i) + c_1 * alpha_i + c_2 * alpha_i2 + c_3 * alpha_i3)
+            # kldiv_w = tf.reduce_sum(K - tf.log(std_mg) - Mtilde)
+        elif prior == 'standard_normal':
+            kldiv_w = tf.reduce_sum(.5 * tf.log(iUp) - tf.log(std_mg) + ((Vtilde + tf.square(Mtilde)) / (2 * iUp)) - .5)
+        elif prior == 'gaussian_mixture':
+            if not tractable:
+                sample = Mtilde + tf.sqrt(Vtilde + 1e-16) * tf.random_normal()
+                # compute log q(sample)
+                # compute log p(sample)
+                # kl_mcmc = logq - logp
+        elif prior == 'standard_cauchy':
+            kldiv_w = tf.reduce_sum(tf.log(np.pi / 2) + .5 * tf.log(iUp) - tf.log(std_mg) + ((Vtilde + tf.square(Mtilde)) / (2 * iUp)))
+
+
+
         kldiv_bias = tf.reduce_sum(.5 * self.pvar_bias - .5 * self.logvar_bias + ((tf.exp(self.logvar_bias) +
                                                                                    tf.square(self.mu_bias)) / (2 * tf.exp(self.pvar_bias))) - .5)
 
@@ -154,4 +190,3 @@ class DenseMNF(Layer):
 
         output = mu_out + sigma_out if sample else mu_out
         return output
-

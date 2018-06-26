@@ -5,13 +5,21 @@ import numpy as np
 from progressbar import ETA, Bar, Percentage, ProgressBar
 from keras.utils.np_utils import to_categorical
 from mnist import MNIST
+from cifar10 import CIFAR10
 import time, os
 from wrappers import MNFLeNet
 
 
 def train():
-    mnist = MNIST()
-    (xtrain, ytrain), (xvalid, yvalid), (xtest, ytest) = mnist.images()
+    dataset = 'cifar10'
+
+    if dataset == 'mnist':
+        mnist = MNIST()
+        (xtrain, ytrain), (xvalid, yvalid), (xtest, ytest) = mnist.images()
+    else:
+        cifar10 = CIFAR10()
+        (xtrain, ytrain), (xvalid, yvalid), (xtest, ytest) = cifar10.images()
+
     xtrain, xvalid, xtest = np.transpose(xtrain, [0, 2, 3, 1]), np.transpose(xvalid, [0, 2, 3, 1]), np.transpose(xtest, [0, 2, 3, 1])
     ytrain, yvalid, ytest = to_categorical(ytrain, 10), to_categorical(yvalid, 10), to_categorical(ytest, 10)
 
@@ -23,6 +31,12 @@ def train():
     input_shape = [None, height, width, n_channels]
     x = tf.placeholder(tf.float32, input_shape, name='x')
     y_ = tf.placeholder(tf.float32, [None, 10], name='y_')
+
+    print '------------------------------'
+    print '       DATASET: {}'.format(dataset)
+    print 'input layer shape: {}, {}, {}'.format(height, width, n_channels)
+
+    print '------------------------------'
 
     model = MNFLeNet(N, input_shape=input_shape, flows_q=FLAGS.fq, flows_r=FLAGS.fr, use_z=not FLAGS.no_z,
                      learn_p=FLAGS.learn_p, thres_var=FLAGS.thres_var, flow_dim_h=FLAGS.flow_h)
@@ -83,7 +97,7 @@ def train():
 
     idx = np.arange(N)
     steps = 0
-    model_dir = '../../models/mnf/model_lenet_mnist_fq{}_fr{}_usez{}_thres{}/'.format(FLAGS.fq, FLAGS.fr, not FLAGS.no_z,
+    model_dir = '../../models/mnf/model_lenet_{}_fq{}_fr{}_usez{}_thres{}/'.format(dataset, FLAGS.fq, FLAGS.fr, not FLAGS.no_z,
                                                                                       FLAGS.thres_var)
     if not os.path.exists(model_dir):
         os.makedirs(model_dir)
@@ -122,7 +136,7 @@ def train():
     train_writer.close()
 
     print '------------------------------------------------'
-    print '-                   MNIST                      -'
+    print '-                   {}                      -'.format(dataset)
 
     preds = np.zeros_like(ytest)
     widgets = ["Sampling |", Percentage(), Bar(), ETA()]
@@ -137,47 +151,49 @@ def train():
     sample_accuracy = np.mean(np.equal(np.argmax(preds, 1), np.argmax(ytest, 1)))
     print '  - Sample test accuracy: {}'.format(sample_accuracy)
 
-    print '------------------------------------------------'
-    print '-                MNIST rotated                 -'
 
-    data_path = '../../data/mnist/mnist_rotated.pkl'
-    if os.path.exists(data_path):
-        with open(data_path, 'rb') as f:
-            data = pickle.load(f)
-        X = data['X']
-        y = data['y']
-    else:
-        # X, y = test_mnist_rot(plot=False)
-        # save_mnist_to_file(X, y)
-        pass
+    if dataset == 'mnist':
+        print '------------------------------------------------'
+        print '-                MNIST rotated                 -'
 
-    X = X[0:10]
-    y = y[0:10]
+        data_path = '../../data/mnist/mnist_rotated.pkl'
+        if os.path.exists(data_path):
+            with open(data_path, 'rb') as f:
+                data = pickle.load(f)
+            X = data['X']
+            y = data['y']
+        else:
+            # X, y = test_mnist_rot(plot=False)
+            # save_mnist_to_file(X, y)
+            pass
 
-    X = X.reshape((X.shape[0], 1, 28, 28))
+        X = X[0:10]
+        y = y[0:10]
 
-    print X.shape
+        X = X.reshape((X.shape[0], 1, 28, 28))
 
-    X = np.transpose(X, [0, 2, 3, 1])
-    # X = X[:, np.newaxis, :, :]
-    y = to_categorical(y, 10)
+        print X.shape
 
-    print '  - Data loaded'
+        X = np.transpose(X, [0, 2, 3, 1])
+        # X = X[:, np.newaxis, :, :]
+        y = to_categorical(y, 10)
 
-    preds = np.zeros_like(y)
-    widgets = ["Sampling |", Percentage(), Bar(), ETA()]
-    pbar = ProgressBar(10, widgets=widgets)
-    pbar.start()
-    for i in xrange(10):
-        pbar.update(i)
-        for j in xrange(1):
-            pyxi = sess.run(pyx, feed_dict={x: X})
-            preds[0:10] += pyxi / 10
-    print
-    sample_accuracy = np.mean(np.equal(np.argmax(preds, 1), np.argmax(y, 1)))
-    print '  - Sample test accuracy: {}'.format(sample_accuracy)
+        print '  - Data loaded'
 
-    print '------------------------------------------------'
+        preds = np.zeros_like(y)
+        widgets = ["Sampling |", Percentage(), Bar(), ETA()]
+        pbar = ProgressBar(10, widgets=widgets)
+        pbar.start()
+        for i in xrange(10):
+            pbar.update(i)
+            for j in xrange(1):
+                pyxi = sess.run(pyx, feed_dict={x: X})
+                preds[0:10] += pyxi / 10
+        print
+        sample_accuracy = np.mean(np.equal(np.argmax(preds, 1), np.argmax(y, 1)))
+        print '  - Sample test accuracy: {}'.format(sample_accuracy)
+
+        print '------------------------------------------------'
 
 def main():
     if tf.gfile.Exists(FLAGS.summaries_dir):
@@ -190,7 +206,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--summaries_dir', type=str, default='logs/mnf_lenet',
                         help='Summaries directory')
-    parser.add_argument('-epochs', type=int, default=1)
+    parser.add_argument('-epochs', type=int, default=10)
     parser.add_argument('-epzero', type=int, default=1)
     parser.add_argument('-fq', default=2, type=int)
     parser.add_argument('-fr', default=2, type=int)
@@ -199,7 +215,7 @@ if __name__ == '__main__':
     parser.add_argument('-lr', type=float, default=0.001)
     parser.add_argument('-thres_var', type=float, default=0.5)
     parser.add_argument('-flow_h', type=int, default=50)
-    parser.add_argument('-L', type=int, default=100)
+    parser.add_argument('-L', type=int, default=10)
     parser.add_argument('-anneal', action='store_true')
     parser.add_argument('-learn_p', action='store_true')
     FLAGS = parser.parse_args()

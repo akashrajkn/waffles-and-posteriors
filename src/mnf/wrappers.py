@@ -30,6 +30,7 @@ class MNFLeNet(object):
             self.layers = []
         with tf.variable_scope(self.opts):
             if not self.built:
+                print 'layer 1 shape: {}'.format(self.input_shape)
                 layer1 = Conv2DMNF(self.layer_dims[0], 5, 5, N=self.N, input_shape=self.input_shape, border_mode='VALID',
                                    flows_q=self.flows_q, flows_r=self.flows_r, logging=self.logging, use_z=self.use_z,
                                    learn_p=self.learn_p, prior_var=self.prior_var_w, prior_var_b=self.prior_var_b,
@@ -41,6 +42,7 @@ class MNFLeNet(object):
 
             if not self.built:
                 shape = [None] + [s.value for s in h1.get_shape()[1:]]
+                print 'layer 2 shape: {}'.format(shape)
                 layer2 = Conv2DMNF(self.layer_dims[1], 5, 5, N=self.N, input_shape=shape, border_mode='VALID',
                                    flows_q=self.flows_q, flows_r=self.flows_r, use_z=self.use_z, logging=self.logging,
                                    learn_p=self.learn_p, flow_dim_h=self.flow_dim_h, thres_var=self.thres_var,
@@ -52,6 +54,7 @@ class MNFLeNet(object):
 
             if not self.built:
                 fcinp_dim = h2.get_shape()[1].value
+                print 'layer 3 shape: {}'.format(fcinp_dim)
                 layer3 = DenseMNF(self.layer_dims[2], N=self.N, input_dim=fcinp_dim, flows_q=self.flows_q,
                                   flows_r=self.flows_r, use_z=self.use_z, logging=self.logging, learn_p=self.learn_p,
                                   prior_var=self.prior_var_w, prior_var_b=self.prior_var_b, flow_dim_h=self.flow_dim_h,
@@ -63,6 +66,7 @@ class MNFLeNet(object):
 
             if not self.built:
                 fcinp_dim = h3.get_shape()[1].value
+                print 'output layer shape: {}'.format(fcinp_dim)
                 layerout = DenseMNF(self.nb_classes, N=self.N, input_dim=fcinp_dim, flows_q=self.flows_q,
                                     flows_r=self.flows_r, use_z=self.use_z, logging=self.logging, learn_p=self.learn_p,
                                     prior_var=self.prior_var_w, prior_var_b=self.prior_var_b, flow_dim_h=self.flow_dim_h,
@@ -87,5 +91,3 @@ class MNFLeNet(object):
             reg += regi
 
         return reg
-
-
