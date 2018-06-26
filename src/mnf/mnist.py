@@ -9,7 +9,7 @@ class MNIST(object):
         self.name = self.__class__.__name__.lower()
 
     def load_data(self):
-        with gzip.open('mnist.pkl.gz', 'rb') as f:
+        with gzip.open('../../data/mnist/mnist.pkl.gz', 'rb') as f:
             try:
                 train_set, valid_set, test_set = pkl.load(f, encoding='latin1')
             except:
