@@ -1,5 +1,6 @@
 # Data
 data/mnist/*
+data/cifar10/*
 
 # Models
 models/lenet/*
