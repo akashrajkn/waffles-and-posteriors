@@ -4,6 +4,8 @@ data/cifar10/*
 
 # Models
 models/lenet/*
+models/mnf/*
+
 src/mnf/models/*
 
 # Logs
