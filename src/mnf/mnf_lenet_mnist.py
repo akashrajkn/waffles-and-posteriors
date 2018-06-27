@@ -10,8 +10,7 @@ import time, os
 from wrappers import MNFLeNet
 
 
-def train():
-    dataset = 'cifar10'
+def train(dataset, perform_test, save_losses, only_test):
 
     if dataset == 'mnist':
         mnist = MNIST()
@@ -102,6 +101,10 @@ def train():
     if not os.path.exists(model_dir):
         os.makedirs(model_dir)
     print 'Will save model as: {}'.format(model_dir)
+
+    entropies = []
+    lowerbounds = []
+
     # Train
     for epoch in xrange(FLAGS.epochs):
         widgets = ["epoch {}/{}|".format(epoch + 1, FLAGS.epochs), Percentage(), Bar(), ETA()]
@@ -109,16 +112,31 @@ def train():
         pbar.start()
         np.random.shuffle(idx)
         t0 = time.time()
+
+        current_entropy = 0
+        current_lowerbound = 0
+
         for j in xrange(iter_per_epoch):
             steps += 1
             pbar.update(j)
-            batch = np.random.choice(idx, 100)
+
+            if dataset == "mnist":
+                batch_size = 100
+            else:
+                batch_size = 10
+            batch = np.random.choice(idx, batch_size)
             if j == (iter_per_epoch - 1):
-                summary, _ = sess.run([merged, train_step], feed_dict={x: xtrain[batch], y_: ytrain[batch]})
+                summary, _, a, b = sess.run([merged, train_step, cross_entropy, lowerbound], feed_dict={x: xtrain[batch], y_: ytrain[batch]})
                 train_writer.add_summary(summary,  steps)
                 train_writer.flush()
             else:
-                sess.run(train_step, feed_dict={x: xtrain[batch], y_: ytrain[batch]})
+                _, a, b = sess.run([train_step, cross_entropy, lowerbound], feed_dict={x: xtrain[batch], y_: ytrain[batch]})
+        #     current_entropy += a
+        #     current_lowerbound += b
+        # print current_entropy
+        # print current_lowerbound
+        # entropies.append(current_entropy / iter_per_epoch)
+        # lowerbounds.append(current_lowerbound / iter_per_epoch)
 
         # the accuracy here is calculated by a crude MAP so as to have fast evaluation
         # it is much better if we properly integrate over the parameters by averaging across multiple samples
@@ -135,6 +153,24 @@ def train():
     saver.save(sess, model_dir + 'mnf')
     train_writer.close()
 
+    # *********************** Save cross_entropy and lowerbound *************************
+    if save_losses:
+        print '>>>> Save entropies and lowerbound'
+        print entropies
+        print lowerbounds
+        dictionary = {
+            'entropies': entropies,
+            'lowerbounds': lowerbounds
+        }
+
+        with open('../../models/mnf/{}_standard_cauchy'.format(dataset), 'wb') as dictfile:
+            pickle.dump(dictionary, dictfile)
+    # ************************************************************************************
+
+    if not perform_test:
+        return
+
+    # ******************************* Test ***********************************************
     print '------------------------------------------------'
     print '-                   {}                      -'.format(dataset)
 
@@ -199,7 +235,15 @@ def main():
     if tf.gfile.Exists(FLAGS.summaries_dir):
         tf.gfile.DeleteRecursively(FLAGS.summaries_dir)
     tf.gfile.MakeDirs(FLAGS.summaries_dir)
-    train()
+
+    # ******* Controls *********
+    dataset = 'cifar10'
+    perform_test = True
+    save_losses = True
+    only_test = False
+    # **************************
+
+    train(dataset, perform_test, save_losses, only_test)
 
 if __name__ == '__main__':
     import argparse
@@ -219,4 +263,5 @@ if __name__ == '__main__':
     parser.add_argument('-anneal', action='store_true')
     parser.add_argument('-learn_p', action='store_true')
     FLAGS = parser.parse_args()
+
     main()

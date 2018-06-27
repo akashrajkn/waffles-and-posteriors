@@ -112,7 +112,7 @@ class DenseMNF(Layer):
             logqm -= logdets
 
         # TODO: Move this to main function
-        prior = 'standard_normal'
+        prior = 'log_uniform'
         # sample if analytical solution is not
         tractable = True  # FIXME: this is not complete
 
@@ -120,9 +120,20 @@ class DenseMNF(Layer):
 
         if prior == 'log_uniform':
             theta_i = Mtilde
-            alpha_i = tf.div(Vtilde, Mtilde)
 
-            tf.clip_by_value(alpha_i, 0, 1.0)
+            # Vtilde_pos = tf.sqrt(tf.multiply(Vtilde, Vtilde))
+            Mtilde_pos = tf.sqrt(tf.multiply(Mtilde, Mtilde))
+
+            # alpha_i = tf.div(tf.multiply(Vtilde))
+            alpha_i = tf.div(Vtilde, Mtilde_pos)
+            # alpha_i = Vtilde
+
+            # d = {'m': Mtilde.eval(), 'v': Vtilde.eval}
+
+            # with open('../../models/test', 'rb') as f:
+            #     pickle.dump(d, f)
+
+            # print tf.clip_by_value(alpha_i, 0, 1.0)
 
             c_1 = 1.161415124
             c_2 = -1.50204118
@@ -132,7 +143,7 @@ class DenseMNF(Layer):
             alpha_i2 = tf.multiply(alpha_i, alpha_i)
             alpha_i3 = tf.multiply(alpha_i2, alpha_i)
 
-            kldiv_w = tf.reduce_sum(constant + 0.5 * tf.log(alpha_i) + c_1 * alpha_i + c_2 * alpha_i2 + c_3 * alpha_i3)
+            kldiv_w = tf.reduce_sum(constant + 0.5 * tf.log(alpha_i))# + c_1 * alpha_i + c_2 * alpha_i2 + c_3 * alpha_i3)
             # kldiv_w = tf.reduce_sum(K - tf.log(std_mg) - Mtilde)
         elif prior == 'standard_normal':
             kldiv_w = tf.reduce_sum(.5 * tf.log(iUp) - tf.log(std_mg) + ((Vtilde + tf.square(Mtilde)) / (2 * iUp)) - .5)

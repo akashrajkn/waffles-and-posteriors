@@ -124,7 +124,51 @@ class Conv2DMNF(Layer):
             logqm = - tf.reduce_sum(.5 * (tf.log(2 * np.pi) + tf.log(qm0) + 1))
             logqm -= logdets
 
-        kldiv_w = tf.reduce_sum(.5 * tf.log(iUp) - .5 * tf.log(Vtilde) + ((Vtilde + tf.square(Mtilde)) / (2 * iUp)) - .5)
+        prior = 'log_uniform'
+        # sample if analytical solution is not
+        tractable = True  # FIXME: this is not complete
+
+        print ">>>>>>>>>>>>>> {} -------------------".format(prior)
+
+        if prior == 'log_uniform':
+            # theta_i = Mtilde
+            # alpha_i = tf.div(Vtilde, Mtilde)
+            # d = {'m': Mtilde.eval(), 'v': Vtilde.eval}
+
+            # Vtilde_pos = tf.sqrt(tf.multiply(Vtilde, Vtilde))
+            Mtilde_pos = tf.sqrt(tf.multiply(Mtilde, Mtilde))
+
+            # alpha_i = tf.div(tf.multiply(Vtilde))
+            alpha_i = tf.div(Vtilde, Mtilde_pos)
+
+            # with open('../../models/test', 'rb') as f:
+            #     pickle.dump(d, f)
+
+            # print tf.clip_by_value(alpha_i, 0, 1.0)
+
+            c_1 = 1.161415124
+            c_2 = -1.50204118
+            c_3 = 0.58629921
+            constant = -0.24570927
+
+            alpha_i2 = tf.multiply(alpha_i, alpha_i)
+            alpha_i3 = tf.multiply(alpha_i2, alpha_i)
+
+            kldiv_w = tf.reduce_sum(constant + 0.5 * tf.log(alpha_i))# + c_1 * alpha_i + c_2 * alpha_i2 + c_3 * alpha_i3)
+            # kldiv_w = tf.reduce_sum(K - tf.log(std_mg) - Mtilde)
+        elif prior == 'standard_normal':
+            kldiv_w = tf.reduce_sum(.5 * tf.log(iUp) - tf.log(Vtilde) + ((Vtilde + tf.square(Mtilde)) / (2 * iUp)) - .5)
+        elif prior == 'gaussian_mixture':
+            if not tractable:
+                sample = Mtilde + tf.sqrt(Vtilde + 1e-16) * tf.random_normal()
+                # compute log q(sample)
+                # compute log p(sample)
+                # kl_mcmc = logq - logp
+        elif prior == 'standard_cauchy':
+            kldiv_w = tf.reduce_sum(tf.log(np.pi / 2) + .5 * tf.log(iUp) - tf.log(Vtilde) + ((Vtilde + tf.square(Mtilde)) / (2 * iUp)))
+
+
+        # kldiv_w = tf.reduce_sum(.5 * tf.log(iUp) - .5 * tf.log(Vtilde) + ((Vtilde + tf.square(Mtilde)) / (2 * iUp)) - .5)
         kldiv_bias = tf.reduce_sum(.5 * self.pvar_bias - .5 * self.logvar_bias + ((tf.exp(self.logvar_bias) +
                                                                                    tf.square(mbias)) / (2 * tf.exp(self.pvar_bias))) - .5)
 
