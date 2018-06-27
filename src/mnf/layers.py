@@ -34,6 +34,7 @@ class Layer(object):
         raise NotImplementedError()
 
     def get_reg(self):
+        # kl_1, kl_2 = self.kldiv()
         return - (1. / self.N) * self.kldiv()
 
     def kldiv(self):

@@ -27,8 +27,9 @@ class CIFAR10(object):
         training_labels = np.concatenate((cifar_training_1['labels'], cifar_training_2['labels'], cifar_training_3['labels'],
                                           cifar_training_4['labels']), axis=0)
 
-        validation_data = cifar_training_5['data']
-        validation_labels = cifar_training_5['labels']
+        # FIXME
+        validation_data = cifar_training_5['data'][:1000]
+        validation_labels = cifar_training_5['labels'][:1000]
 
         return [training_data, training_labels], [validation_data, validation_labels], [cifar_test['data'], cifar_test['labels']]
 
