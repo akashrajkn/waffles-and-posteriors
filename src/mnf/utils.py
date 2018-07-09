@@ -15,6 +15,37 @@ sigma_init = 0.01
 dtype = tf.float32
 
 
+def create_mnist_rot_test_data():
+    data_path = '../../data/mnist/mnist_rotated.pkl'
+    if os.path.exists(data_path):
+        with open(data_path, 'rb') as f:
+            data = pickle.load(f)
+        X = data['X']
+        y = data['y']
+    else:
+        # X, y = test_mnist_rot(plot=False)
+        # save_mnist_to_file(X, y)
+        pass
+
+    indices = random.sample(range(len(X)), 10000)
+
+    X = X[np.array(indices)]
+    y = y[np.array(indices)]
+
+    data_test = {
+        'xtest': X,
+        'ytest': y,
+        'indices': indices
+    }
+
+    with open('../../data/mnist/mnist_rotation_test.pkl', 'wb') as f:
+        pickle.dump(data_test, f)
+
+    print 'created rot mnist test data'
+
+    return data_test
+
+
 def get_layer_uid(layer_name=''):
     """Helper function, assigns unique layer IDs
     """

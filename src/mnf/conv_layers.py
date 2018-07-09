@@ -154,7 +154,7 @@ class Conv2DMNF(Layer):
             alpha_i2 = tf.multiply(alpha_i, alpha_i)
             alpha_i3 = tf.multiply(alpha_i2, alpha_i)
 
-            kldiv_w = tf.reduce_sum(constant + 0.5 * tf.log(alpha_i))# + c_1 * alpha_i + c_2 * alpha_i2 + c_3 * alpha_i3)
+            kldiv_w = tf.reduce_sum(constant + 0.5 * tf.log(alpha_i) + c_1 * alpha_i + c_2 * alpha_i2 + c_3 * alpha_i3)
             # kldiv_w = tf.reduce_sum(K - tf.log(std_mg) - Mtilde)
         elif prior == 'standard_normal':
             kldiv_w = tf.reduce_sum(.5 * tf.log(iUp) - tf.log(Vtilde) + ((Vtilde + tf.square(Mtilde)) / (2 * iUp)) - .5)
