@@ -1,8 +1,12 @@
 from layers import Layer
 import numpy as np
 import tensorflow as tf
+
 from norm_flows import MaskedNVPFlow
 from utils import randmat, zeros_d, ones_d, outer
+from constants import PARAMS
+
+# global PRIOR
 
 
 class Conv2DMNF(Layer):
@@ -124,7 +128,7 @@ class Conv2DMNF(Layer):
             logqm = - tf.reduce_sum(.5 * (tf.log(2 * np.pi) + tf.log(qm0) + 1))
             logqm -= logdets
 
-        prior = 'log_uniform'
+        prior = PARAMS['prior']
         # sample if analytical solution is not
         tractable = True  # FIXME: this is not complete
 
@@ -158,12 +162,22 @@ class Conv2DMNF(Layer):
             # kldiv_w = tf.reduce_sum(K - tf.log(std_mg) - Mtilde)
         elif prior == 'standard_normal':
             kldiv_w = tf.reduce_sum(.5 * tf.log(iUp) - tf.log(Vtilde) + ((Vtilde + tf.square(Mtilde)) / (2 * iUp)) - .5)
+        elif prior == 'uniform':
+            kldiv_w = tf.reduce_sum(tf.log(Vtilde) + 0.5 * tf.log(2 * np.pi) -1.8025)  # ln(e) - ln(10)
         elif prior == 'gaussian_mixture':
             if not tractable:
                 sample = Mtilde + tf.sqrt(Vtilde + 1e-16) * tf.random_normal()
                 # compute log q(sample)
                 # compute log p(sample)
                 # kl_mcmc = logq - logp
+        elif prior == 'standard_gumbel':
+            mean_scale_ratio = Mtilde
+            var_scale_sqr_ratio = Vtilde
+            loc_scale_ratio = 0
+            t1 = tf.log(var_scale_sqr_ratio) * 0.5
+            t2 = mean_scale_ratio - loc_scale_ratio
+            t3 = tf.exp(-mean_scale_ratio + 0.5 * var_scale_sqr_ratio + loc_scale_ratio)
+            kldiv_w = tf.reduce_sum(-t1 + t2 + t3 - (0.5 * (1 + tf.log(2 * np.pi))))
         elif prior == 'standard_cauchy':
             kldiv_w = tf.reduce_sum(tf.log(np.pi / 2) + .5 * tf.log(iUp) - tf.log(Vtilde) + ((Vtilde + tf.square(Mtilde)) / (2 * iUp)))
 
