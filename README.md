@@ -17,14 +17,40 @@ To specify the prior distribution, modify PARAMS in `constants.py`. Available op
 ### Experiments and Results
 
 **Predictive performance**: Table below shows the validation and test accuracy achieved on the `MNIST` dataset.
-
-| Prior           	| Validation Acc. 	| Test Acc. 	|
-|-----------------	|-----------------	|-----------	|
-| Standard normal 	| 0.987           	| **0.992**   |
-| Log uniform     	| 0.984           	| 0.984     	|
-| Standard Cauchy 	| **0.990**       	| 0.989     	|
-| Standard Gumbel 	| 0.985           	| 0.987     	|
-| Unirorm         	| 0.990           	| 0.991     	|
+<div align="center">
+  <table class="tg">
+  <tr>
+    <th class="tg-xldj">Prior</th>
+    <th class="tg-xldj">Validation Acc.</th>
+    <th class="tg-xldj">Test Acc.</th>
+  </tr>
+  <tr>
+    <td class="tg-xldj">Standard normal</td>
+    <td class="tg-xldj">0.987</td>
+    <td class="tg-xldj">0.992</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">Log uniform</td>
+    <td class="tg-0pky">0.984</td>
+    <td class="tg-0pky">0.984</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">Standard Cauchy</td>
+    <td class="tg-0pky">0.990</td>
+    <td class="tg-0pky">0.989</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">Standard Gumbel</td>
+    <td class="tg-0pky">0.985</td>
+    <td class="tg-0pky">0.987</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">Unirorm</td>
+    <td class="tg-0pky">0.990</td>
+    <td class="tg-0pky">0.991</td>
+  </tr>
+</table>
+</div>
 
 **Uncertainty evaluation**
 For the task of uncertainty evaluation,  we use the trained network to predict the distribution forunseen classes. We train the models on `MNIST` dataset and evaluate on the `notMNIST`[2] and `MNIST-rot`[3] datasets.
