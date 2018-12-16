@@ -10,7 +10,7 @@ We use the code implemented by authors available here: [AMLab-Amsterdam/MNF_VBNN
 cd src/mnf
 python mnf_lenet_mnist.py
 ```
-To specify the prior distribution, modify PARAMS in `constants.py`. Available options are `['standard_normal', 'log_uniform', 'standard_cauchy', 'standard_gumbel', 'uniform']` (`gaussian\_mixture` support will be added soon.)
+To specify the prior distribution, modify PARAMS in `constants.py`. Available options are `['standard_normal', 'log_uniform', 'standard_cauchy', 'standard_gumbel', 'uniform']` (`gaussian_mixture` support will be added soon.)
 
 ### Experiments
 
