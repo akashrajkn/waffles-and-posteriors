@@ -17,7 +17,7 @@ To specify the prior distribution, modify PARAMS in `constants.py`. Available op
 ### Experiments
 
 ### Results
-Entropy of the predictive distribution for theMNIST-rottest set. The left figure is thehistogram of entropy values and the right figure shows the corresponding cumulative distribution function.
+Entropy of the predictive distribution for the `MNIST-rot` test set. The left figure is the histogram of entropy values and the right figure shows the corresponding cumulative distribution function.
 <div align="center">
   <img src="results/entropy_notmnist.png" height=200/>
   <img src="results/cdf_notmnist.png" height=200/>
