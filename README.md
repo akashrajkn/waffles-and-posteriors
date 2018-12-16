@@ -12,6 +12,8 @@ python mnf_lenet_mnist.py
 ```
 To specify the prior distribution, modify PARAMS in `constants.py`. Available options are `['standard_normal', 'log_uniform', 'standard_cauchy', 'standard_gumbel', 'uniform']` (`gaussian_mixture` support will be added soon.)
 
+**Dependencies**: The code requires tensorflow. We have created a `environment.yml` file with the (working) package versions. It can be installed using conda.
+
 ### Experiments
 
 ### Results
