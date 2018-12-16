@@ -56,6 +56,7 @@ For the task of uncertainty evaluation,  we use the trained network to predict t
   <img src="results/entropy_notmnist.png" height=200/>
   <img src="results/cdf_notmnist.png" height=200/>
 </div>
+
 Entropy of the predictive distribution for the `MNIST-rot` test set. The left figure is the histogram of entropy values and the right figure shows the corresponding cumulative distribution function.
 
 ### References
