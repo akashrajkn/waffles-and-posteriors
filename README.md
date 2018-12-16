@@ -21,7 +21,7 @@ To specify the prior distribution, modify PARAMS in `constants.py`. Available op
 <center>
 
 | Prior           	| Val. acc. 	      | Test acc. 	|
-|-----------------	|----------------:	|----------:	|
+|:----------------	|----------------:	|----------:	|
 | Standard normal 	| 0.987           	| **0.992**   |
 | Log uniform     	| 0.984           	| 0.984     	|
 | Standard Cauchy 	| **0.990**       	| 0.989     	|
