@@ -14,14 +14,27 @@ To specify the prior distribution, modify PARAMS in `constants.py`. Available op
 
 **Dependencies**: The code requires tensorflow. We have created a `environment.yml` file with the (working) package versions. It can be installed using conda.
 
-### Experiments
+### Experiments and Results
 
-### Results
-Entropy of the predictive distribution for the `MNIST-rot` test set. The left figure is the histogram of entropy values and the right figure shows the corresponding cumulative distribution function.
+**Predictive performance**: Table below shows the validation and test accuracy achieved on the `MNIST` dataset.
+
+| Prior           	| Validation Acc. 	| Test Acc. 	|
+|-----------------	|-----------------	|-----------	|
+| Standard normal 	| 0.987           	| **0.992**   |
+| Log uniform     	| 0.984           	| 0.984     	|
+| Standard Cauchy 	| **0.990**       	| 0.989     	|
+| Standard Gumbel 	| 0.985           	| 0.987     	|
+| Unirorm         	| 0.990           	| 0.991     	|
+
+**Uncertainty evaluation**
+For the task of uncertainty evaluation,  we use the trained network to predict the distribution forunseen classes. We train the models on `MNIST` dataset and evaluate on the `notMNIST`[2] and `MNIST-rot`[3] datasets.
 <div align="center">
   <img src="results/entropy_notmnist.png" height=200/>
   <img src="results/cdf_notmnist.png" height=200/>
 </div>
+Entropy of the predictive distribution for the `MNIST-rot` test set. The left figure is the histogram of entropy values and the right figure shows the corresponding cumulative distribution function.
 
 ### References
-[1] *Multiplicative Normalizing Flows for Variational Bayesian Neural Networks*. Christos Louizos & Max Welling. [arXiv 1703.01961](https://arxiv.org/abs/1703.01961)
+1. *Multiplicative Normalizing Flows for Variational Bayesian Neural Networks*. Christos Louizos & Max Welling. [arXiv 1703.01961](https://arxiv.org/abs/1703.01961)
+2. Dataset available at: http://yaroslavvb.blogspot.com/2011/09/notmnist-dataset.html
+3. Dataset available at: http://www-labs.iro.umontreal.ca/~lisa/icml2007data/
