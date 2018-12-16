@@ -15,6 +15,11 @@ To specify the prior distribution, modify PARAMS in `constants.py`. Available op
 ### Experiments
 
 ### Results
+Entropy of the predictive distribution for theMNIST-rottest set. The left figure is thehistogram of entropy values and the right figure shows the corresponding cumulative distribution function.
+<div align="center">
+  <img src="results/entropy_notmnist.png" height=200/>
+  <img src="results/cdf_notmnist.png" height=200/>
+</div>
 
 ### References
 [1] *Multiplicative Normalizing Flows for Variational Bayesian Neural Networks*. Christos Louizos & Max Welling. [ArXiV 1703.01961](https://arxiv.org/abs/1703.01961)
