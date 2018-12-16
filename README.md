@@ -24,4 +24,4 @@ Entropy of the predictive distribution for theMNIST-rottest set. The left figure
 </div>
 
 ### References
-[1] *Multiplicative Normalizing Flows for Variational Bayesian Neural Networks*. Christos Louizos & Max Welling. [ArXiV 1703.01961](https://arxiv.org/abs/1703.01961)
+[1] *Multiplicative Normalizing Flows for Variational Bayesian Neural Networks*. Christos Louizos & Max Welling. [arXiv 1703.01961](https://arxiv.org/abs/1703.01961)
