@@ -122,82 +122,88 @@ def train(dataset, save_losses):
 
     tf.global_variables_initializer().run()
 
-    idx = np.arange(N)
-    steps = 0
-    model_dir = '../../models/mnf/{}_{}_epochs-{}/'.format(dataset, prior, FLAGS.epochs)
+    # idx = np.arange(N)
+    # steps = 0
+    # model_dir = '../../models/mnf/{}_{}_epochs-{}/'.format(dataset, prior, FLAGS.epochs)
+    #
+    # if not os.path.exists(model_dir):
+    #     os.makedirs(model_dir)
+    # print ' - Will save model as: {}'.format(model_dir)
 
-    if not os.path.exists(model_dir):
-        os.makedirs(model_dir)
-    print ' - Will save model as: {}'.format(model_dir)
 
-    entropies = []
-    lowerbounds = []
-    # Train
-    for epoch in xrange(FLAGS.epochs):
-        widgets = ["epoch {}/{}|".format(epoch + 1, FLAGS.epochs), Percentage(), Bar(), ETA()]
-        pbar = ProgressBar(iter_per_epoch, widgets=widgets)
-        pbar.start()
-        np.random.shuffle(idx)
-        t0 = time.time()
+    print 'Load weights and apply to network'
+    model_path = '../../models/mnf/mnist_{}_epochs-25/'.format(prior)
+    saver = tf.train.import_meta_graph('{}mnf.meta'.format(model_path))
+    saver.restore(sess, tf.train.latest_checkpoint(model_path))
 
-        current_entropy = 0
-        current_lowerbound = 0
-
-        for j in xrange(iter_per_epoch):
-            steps += 1
-            pbar.update(j)
-
-            if dataset == "mnist":
-                batch_size = 100
-            else:
-                batch_size = 10
-            batch = np.random.choice(idx, batch_size)
-            if j == (iter_per_epoch - 1):
-                summary, _, a, b = sess.run([merged, train_step, cross_entropy, lowerbound], feed_dict={x: xtrain[batch], y_: ytrain[batch]})
-                train_writer.add_summary(summary,  steps)
-                train_writer.flush()
-            else:
-                _, a, b = sess.run([train_step, cross_entropy, lowerbound], feed_dict={x: xtrain[batch], y_: ytrain[batch]})
-            current_entropy += a
-            current_lowerbound += b
-
-        # print current_entropy
-        # print current_lowerbound
-
-        entropies.append(current_entropy / iter_per_epoch)
-        lowerbounds.append(current_lowerbound / iter_per_epoch)
-
-        # the accuracy here is calculated by a crude MAP so as to have fast evaluation
-        # it is much better if we properly integrate over the parameters by averaging across multiple samples
-        tacc = sess.run(accuracy, feed_dict={x: xvalid, y_: yvalid})
-        string = '   - Epoch {}/{}, valid_acc: {:0.3f}'.format(epoch + 1, FLAGS.epochs, tacc)
-
-        # if (epoch % 2) == 0:
-            # test_1(sess, xtest, ytest, pyx, cross_entropy, lowerbound, x)
-
-        if (epoch + 1) % 10 == 0:
-            string += ', model_save: True'
-            saver.save(sess, model_dir)
-
-        string += ', dt: {:0.3f}'.format(time.time() - t0)
-        print string
-
-    saver.save(sess, model_dir + 'mnf')
-    train_writer.close()
-
-    # *********************** Save cross_entropy and lowerbound *************************
-    if save_losses:
-        print ' - Save entropies and lowerbound'
-        print entropies
-        print lowerbounds
-        dictionary = {
-            'entropies': entropies,
-            'lowerbounds': lowerbounds
-        }
-
-        with open('../../models/mnf/{}_{}'.format(dataset, prior), 'wb') as dictfile:
-            pickle.dump(dictionary, dictfile)
-    # ************************************************************************************
+    # entropies = []
+    # lowerbounds = []
+    # # Train
+    # for epoch in xrange(FLAGS.epochs):
+    #     widgets = ["epoch {}/{}|".format(epoch + 1, FLAGS.epochs), Percentage(), Bar(), ETA()]
+    #     pbar = ProgressBar(iter_per_epoch, widgets=widgets)
+    #     pbar.start()
+    #     np.random.shuffle(idx)
+    #     t0 = time.time()
+    #
+    #     current_entropy = 0
+    #     current_lowerbound = 0
+    #
+    #     for j in xrange(iter_per_epoch):
+    #         steps += 1
+    #         pbar.update(j)
+    #
+    #         if dataset == "mnist":
+    #             batch_size = 100
+    #         else:
+    #             batch_size = 10
+    #         batch = np.random.choice(idx, batch_size)
+    #         if j == (iter_per_epoch - 1):
+    #             summary, _, a, b = sess.run([merged, train_step, cross_entropy, lowerbound], feed_dict={x: xtrain[batch], y_: ytrain[batch]})
+    #             train_writer.add_summary(summary,  steps)
+    #             train_writer.flush()
+    #         else:
+    #             _, a, b = sess.run([train_step, cross_entropy, lowerbound], feed_dict={x: xtrain[batch], y_: ytrain[batch]})
+    #         current_entropy += a
+    #         current_lowerbound += b
+    #
+    #     # print current_entropy
+    #     # print current_lowerbound
+    #
+    #     entropies.append(current_entropy / iter_per_epoch)
+    #     lowerbounds.append(current_lowerbound / iter_per_epoch)
+    #
+    #     # the accuracy here is calculated by a crude MAP so as to have fast evaluation
+    #     # it is much better if we properly integrate over the parameters by averaging across multiple samples
+    #     tacc = sess.run(accuracy, feed_dict={x: xvalid, y_: yvalid})
+    #     string = '   - Epoch {}/{}, valid_acc: {:0.3f}'.format(epoch + 1, FLAGS.epochs, tacc)
+    #
+    #     # if (epoch % 2) == 0:
+    #         # test_1(sess, xtest, ytest, pyx, cross_entropy, lowerbound, x)
+    #
+    #     if (epoch + 1) % 10 == 0:
+    #         string += ', model_save: True'
+    #         saver.save(sess, model_dir)
+    #
+    #     string += ', dt: {:0.3f}'.format(time.time() - t0)
+    #     print string
+    #
+    # saver.save(sess, model_dir + 'mnf')
+    # train_writer.close()
+    #
+    # # *********************** Save cross_entropy and lowerbound *************************
+    # if save_losses:
+    #     print ' - Save entropies and lowerbound'
+    #     print entropies
+    #     print lowerbounds
+    #     dictionary = {
+    #         'entropies': entropies,
+    #         'lowerbounds': lowerbounds
+    #     }
+    #
+    #     with open('../../models/mnf/{}_{}'.format(dataset, prior), 'wb') as dictfile:
+    #         pickle.dump(dictionary, dictfile)
+    # # ************************************************************************************
 
 
     # if not perform_test:
@@ -237,18 +243,60 @@ def train(dataset, save_losses):
     # print '  - Sample test accuracy: {}'.format(sample_accuracy)
     #
     #
-    # # >>>>>>>>>>>>>>>>>>>> Experiment 2: Compressed weights on the dense layer
-    # threshold_dense_layer_1 = 1
-    # threshold_dense_layer_2 = 0.1
-    #
-    # print '------------------- Experiment 2: Compressed weights -----------------------------'
-    #
+    # >>>>>>>>>>>>>>>>>>>> Experiment 2: Compressed weights on the dense layer
+    threshold_dense_layer_1 = 0.5
+    threshold_dense_layer_2 = 0.1
+
+    print '------------------- Experiment 2: Compressed weights -----------------------------'
+
+    # to save:
+    compression_accuracy = 'threshold, compression, accuracy\n'
+
+    # compression in layer 1
+    cutoffs = np.linspace(0.0, 1.0, num=10)
+    # Test code:
+    # cutoffs = [0.0, 0.2]
+    weights = [v for v in tf.trainable_variables() if v.name == "fq2_fr2_usezTrue/densemnf_1/mean_W:0"][0]
+    total_non_zeros = np.count_nonzero(weights.eval())
+    # total_non_zeros_tf = tf.count_nonzero(weights)
+    # print 'np = {}, tf = {}'.format(total_non_zeros, total_non_zeros_tf)
+
+    for cutoff in cutoffs:
+        temp = weights.eval()
+        temp[(temp >= -cutoff) & (temp <= cutoff)] = 0.0
+
+        w_new = [v for v in tf.trainable_variables() if v.name == "fq2_fr2_usezTrue/densemnf_1/mean_W:0"][0]
+        w_new.load(temp.tolist(), sess)
+        sess.run(w_new)
+
+        print "******** {} ********".format(cutoff)
+        preds = np.zeros_like(ytest)
+        widgets = ["Sampling |", Percentage(), Bar(), ETA()]
+        pbar = ProgressBar(FLAGS.L, widgets=widgets)
+        pbar.start()
+        for i in xrange(FLAGS.L):
+            pbar.update(i)
+            for j in xrange(xtest.shape[0] / 100):
+                pyxi = sess.run(pyx, feed_dict={x: xtest[j * 100:(j + 1) * 100]})
+                preds[j * 100:(j + 1) * 100] += pyxi / FLAGS.L
+        print
+        sample_accuracy = np.mean(np.equal(np.argmax(preds, 1), np.argmax(ytest, 1)))
+        print '  - Sample test accuracy: {}'.format(sample_accuracy)
+
+        current_non_zeros = np.count_nonzero(temp) * 1.0
+        # current_non_zeros = tf.count_nonzero(w_new)
+
+        print 'total = {}, current = {}'.format(total_non_zeros, current_non_zeros)
+        compression_current   = (total_non_zeros - current_non_zeros) / total_non_zeros
+        compression_accuracy += '{}, {}, {}\n'.format(cutoff, compression_current, sample_accuracy)
+
+    # save compression to file
+    with open('../../results/compression_accuracy_{}_layer1.csv'.format(prior), 'w+') as f:
+        f.write(compression_accuracy)
+
     # weights = [v for v in tf.trainable_variables() if v.name == "fq2_fr2_usezTrue/densemnf_2/mean_W:0"][0]
     # weights_eval = weights.eval()
     # weights_eval[(weights_eval >= -threshold_dense_layer_1) & (weights_eval <= threshold_dense_layer_1)] = 0.0
-    #
-    # # w_new = w.assign(tf.convert_to_tensor(weights))
-    # # w = w.assign(tf.zeros([500, 10]))
     # w_new = [v for v in tf.trainable_variables() if v.name == "fq2_fr2_usezTrue/densemnf_2/mean_W:0"][0]
     # w_new.load(weights_eval.tolist(), sess)
     # sess.run(w_new)
@@ -263,14 +311,14 @@ def train(dataset, save_losses):
     #         pyxi = sess.run(pyx, feed_dict={x: xtest[j * 100:(j + 1) * 100]})
     #         preds[j * 100:(j + 1) * 100] += pyxi / FLAGS.L
     #
-    # # save preds
-    # with open('../../models/mnf/{}_{}_preds_experiment_2'.format(dataset, prior, FLAGS.epochs), 'w') as outfile:
-    #     np.save(outfile, preds)
+    # # # save preds
+    # # with open('../../models/mnf/{}_{}_preds_experiment_2'.format(dataset, prior, FLAGS.epochs), 'w') as outfile:
+    # #     np.save(outfile, preds)
     #
     # print
     # sample_accuracy = np.mean(np.equal(np.argmax(preds, 1), np.argmax(ytest, 1)))
     # print '  - Sample test accuracy: {}'.format(sample_accuracy)
-    #
+
     #
     # # >>>>>>>>>>>>>>>>>>>> Experiment 3: Rotated MNIST
     #
