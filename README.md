@@ -18,13 +18,18 @@ To specify the prior distribution, modify PARAMS in `constants.py`. Available op
 
 **Predictive performance**: Table below shows the validation and test accuracy achieved on the `MNIST` dataset.
 
-| Prior           	| Val. acc. 	      | Test acc. 	|
+<!-- | Prior           	| Val. acc. 	      | Test acc. 	|
 |:----------------	|----------------:	|----------:	|
 | Standard normal 	| 0.987           	| **0.992**   |
 | Log uniform     	| 0.984           	| 0.984     	|
 | Standard Cauchy 	| **0.990**       	| 0.989     	|
 | Standard Gumbel 	| 0.985           	| 0.987     	|
-| Unirorm         	| 0.990           	| 0.991     	|
+| Unirorm         	| 0.990           	| 0.991     	| -->
+
+<div align="center">
+  <img src="results/predictive_accuracy_table.png" height=200/>
+</div>
+
 
 **Uncertainty evaluation**: For the task of uncertainty evaluation,  we use the trained network to predict the distribution forunseen classes. We train the models on `MNIST` dataset and evaluate on the `notMNIST`[3] and `MNIST-rot`[4] datasets.
 <div align="center">
